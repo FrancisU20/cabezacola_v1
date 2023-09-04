@@ -1,11 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Aug  7 15:38:00 2023
-
-@author: ccalan
-"""
-
-#%%IMPORTAR LIBRERIAS
 import pandas as pd
 import numpy as np
 import os
@@ -14,8 +6,6 @@ import impala.util
 from impala.dbapi import connect
 from datetime import datetime
 
-#%%
-#LECTURA DE CLASIFICACION
 pdvs=pd.DataFrame()
 pdvs['BODEGA']=['173','254','161','212','065','654','494','510','289','1858','528','1826','427','044','3139','3134','037','1750','081','3147','926','464','011','184','152','671','622','392','1124','1789','1956','220','226','580','653','359','559','444','156','054','881','155','008','589','3135','3148','1044','088','1867','131','489','1981','395','759','1935','1025','682','1113','185','206','328','322','517','303','636','1020','844','372','832','400','772','396','1735','1876','393','762','247','234','302','160','354','2012','229','886','678','224','3144','153','157','189','2061','1892','434','061','202','781','1029','077','1777','277','317','391','377','715','523','841','1868','1952','777','451','787','113','806','3145','1849','137','825','1031','1015','217','670','276','871','877','3133','1003','1710','830','552','389','727','504','018','004','051','197','1764','863','190','269','048','1040','383','314','457','540','439','380','629','890','1105','309','251','1997','1108','1131','195','116','332','1757','345','791','816','573','1107','243','684','1696','101','511','305','244','525','3146','1037','419','780','343','577','1941','861','470','228','291','1739','477','820','115','486','1917','355','2058','103','3149','1130','069','1697','429','587','565','774','592','075','394','1002','1065','043','2087','1833','256','114','056','017','1809','924','200','453','1825','036','1793','1804','1695','1763','272','125','346','694','1718','402','080','079','1883','337','033','109','403','1880','352','485','390','369','1855','106','1042','060','090','321','310','461','319','1070','513','312','509','1024','561','1032','415','640','1741','401','250','842','562','213','295','199','1019','207','034','042','219','1783','1909','614','1759','582','801','353','176','164','283','068','3127','566','897','3137','521','563','713','642','811','604','445','275','013','138','366','1134','274','1052','082','339','141','418','208','010','502','744','608','273','3136','1046','3129','946','837','3151','518','760','775','527','869','850','557','3152','560','632','773','163','709','358','542','497','066','792','3150','268','894','133','1120']
 List_PDV = list(pdvs['BODEGA'].unique())
@@ -123,30 +113,27 @@ ArchivoDeClasificacion['OBS'] = np.where((ArchivoDeClasificacion['CATEGORIA']=='
 ArchivoDeClasificacion = ArchivoDeClasificacion[ArchivoDeClasificacion['OBS']!='ELIMINAR']
 del ArchivoDeClasificacion['OBS']
 
-#%%
-#LECTURA DE CATÁLOGO
 list_catalogo = []
 for dirpath, dirnames, filenames in os.walk(r'C:\OneD\BI\OneDrive - Farmaenlace\CATÁLOGO BODEGA CENTRAL'):
     for filename in filenames:
         list_catalogo.append(os.path.join(dirpath, filename))
 list_catalogo = list_catalogo[-1]
 try:
-    CatalogoActualizado = pd.read_excel(list_catalogo, skiprows=1, converters={'Cód. Art.':str},parse_dates=['fechaIngreso'])
+    CatalogoActualizado = pd.read_excel(list_catalogo, skiprows=4, converters={'Cód. Art.':str},parse_dates=['fechaIngreso'])
 except FileNotFoundError: print("El archivo no existe / No está en la ubicación correcta. ",list_catalogo)
 except PermissionError: print("No tienes permiso para leer este archivo. ",list_catalogo)
 except UnicodeDecodeError: print("El archivo no está en el formato correcto. ",list_catalogo)
 except IsADirectoryError: print("Estás intentando leer un directorio en lugar de un archivo. ",list_catalogo)
 except IOError: print("No se pudo leer el archivo debido a un problema de E/S. ",list_catalogo)
 print('Ruta CATÁLOGO leído: ',list_catalogo)
+
 del dirnames, dirpath, filename, filenames,list_catalogo
-#%% FILTROS
 CatalogoActualizado = CatalogoActualizado.rename(columns={'Cód. Art.':'CODIGO','Artículo':'DESCRIPCION','Categ.':'CatBC','Stock BC':'STOCK_BC','estadoBC':'Estado_BC'})
 CatalogoActualizado['UBI'] = CatalogoActualizado.loc[:,'UBICACION'].str[0:2]
 CatalogoActualizado = CatalogoActualizado[['CODIGO', 'CatBC','Nivel1','UBI','PPP']]
 ArchivoDeClasificacion= ArchivoDeClasificacion.merge(CatalogoActualizado, how="left")
 ArchivoDeClasificacion = ArchivoDeClasificacion[(ArchivoDeClasificacion['CATEGORIA']!='Z') & (ArchivoDeClasificacion['CATEGORIA']!='N')&(ArchivoDeClasificacion['CATEGORIA']!='D')&(ArchivoDeClasificacion['Nivel1']!='SERVICIOS')&(ArchivoDeClasificacion['Nivel1']!='SUMINISTROS')&(ArchivoDeClasificacion['UBI']!='Z-')&(ArchivoDeClasificacion['CatBC']!='Z')&(ArchivoDeClasificacion['CatBC']!='D')]
-#%%
- 
+
 ArchivoDeClasificacion1 = ArchivoDeClasificacion[['BODEGA', 'CODIGO', 'CATEGORIA', 'MINIMO', 'MAXIMO', 'DIA_MIN','DIA_MAX', 'PROMEDIO', 'SIEMBRA','CatBC', 'Nivel1', 'UBI', 'PPP']]
 List_PDV=['173','161','212','065','654','842','562','213','295','199','2078','3157','751', '848','849'] #Farmacias Piloto
 consolidado=pd.DataFrame(columns=(['BODEGA', 'CODIGO', 'CATEGORIA', 'MINIMO', 'MAXIMO', 'DIA_MIN',
@@ -176,7 +163,7 @@ for PDV in tqdm(List_PDV):
                 "ReglaScott": ReglaScott,
                 "NumGrupos": NumGrupos
                 }
-        DataReglaScott = DataReglaScott.append(data, ignore_index=True)
+        DataReglaScott = DataReglaScott._append(data, ignore_index=True)
     #ANÁLISIS
     CabCol = [(DataReglaScott['ReglaScott']>=1)&(DataReglaScott['NumSKU']>1),
              (DataReglaScott['ReglaScott']>=0.5)&(DataReglaScott['ReglaScott']<1)&(DataReglaScott['NumSKU']>1),
@@ -230,8 +217,6 @@ for PDV in tqdm(List_PDV):
                     data1['NEW_MAX'] = np.where((data1['GRUPO']==1)&(data1['NEW_MAX']<=media_cola.iloc[0]),media_cola.iloc[0],data1['NEW_MAX'])
                     data1['ACCION']=i
                     consolidado=pd.concat([consolidado,data1], ignore_index=False)
-
-
 
         if i=='SuperCabeza y 50% Cola > Prom (+1)':
             data=PDVAux[PDVAux['Validación']==i]
@@ -416,58 +401,8 @@ for PDV in tqdm(List_PDV):
     except:
         print('Sin corrección en C')     
     
-    
-
-    
 excluidos=pd.DataFrame(columns=['BODEGA']) 
 excluidos['BODEGA']=['264','793','273','9004','615','9002','238','300','254','9003','003','522','120','4101','4102','4103']
 consolidado=consolidado[~consolidado['BODEGA'].isin(excluidos['BODEGA'])]
 consolidado=consolidado[['BODEGA','CODIGO','NEW_MAX']]
 consolidado.to_csv('NUEVOS_MAXIMOS.csv',index=False)
-
-
-import pandas as pd
-import pyodbc
-
-def actualizar_base_de_datos(csv_file, server, database, username, password, table):
-    # Leer los datos del archivo CSV
-    data = pd.read_csv(csv_file)
-    
-    # Conectar a la base de datos
-    conn = pyodbc.connect(
-        f"DRIVER=ODBC Driver 17 for SQL Server;"
-        f"SERVER={server};"
-        f"DATABASE={database};"
-        f"UID={username};"
-        f"PWD={password};"
-    )
-    
-    cursor = conn.cursor()
-    
-    # Iterar a través de los datos del CSV y actualizar la base de datos
-    for index, row in data.iterrows():
-        bodega = row['bodega']
-        codigo = row['codigo']
-        new_max = row['new_max']
-        
-        query = f"""
-        UPDATE {table}
-        SET sm_nuevoMaximo = {new_max}
-        WHERE idOficina = {bodega} AND codigo = '{codigo}'
-        """
-        
-        cursor.execute(query)
-        conn.commit()
-    
-    conn.close()
-
-# Llamar a la función para actualizar la base de datos
-actualizar_base_de_datos(
-    csv_file='ruta/del/archivo.csv',
-    server='192.168.147.32',
-    database='EasyGestionEmpresarial',
-    username='sa',
-    password='sqlfarma',
-    table='[dbo].[simulador2_ALL_Productos]'
-)
-
