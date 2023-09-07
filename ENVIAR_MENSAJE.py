@@ -1,7 +1,7 @@
 import requests
 
 def varios_destinatarios(mensaje):
-    destinatarios = ['0998630405', '0994346133']
+    destinatarios = ['0998630405', '0994346133', '0987713811']
     try:
         for destinatario in destinatarios:
             enviar_mensaje(destinatario, mensaje)

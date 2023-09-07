@@ -8,7 +8,7 @@ from ENVIAR_MENSAJE import varios_destinatarios
 def actualizar_base_de_datos(csv_file, server, database, username, password):
     # Leer los datos del archivo CSV y forzar las columnas a cadenas (str)
     
-    varios_destinatarios('*Proceso de actualización nuevos máximos iniciado:*')
+    varios_destinatarios('*INICIA PROCESO DE ACTUALIZACIÓN DE NUEVOS MÁXIMOS EN BDD...*')
     time.sleep(10)
     
     print("Leyendo datos del archivo CSV...")
@@ -87,7 +87,7 @@ def mostrar_tiempo_transcurrido(start_time):
 if __name__ == "__main__":
     start_time = time.time()  # Capturar el tiempo de inicio
     actualizar_base_de_datos(
-        csv_file="SIEMBRA_20230904_02.csv",
+        csv_file="NUEVOS_MAXIMOS.csv",
         server="192.168.147.32",
         database="EasyGestionEmpresarial",
         username="sa",
