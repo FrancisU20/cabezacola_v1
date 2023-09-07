@@ -141,7 +141,7 @@ except PermissionError: print("No tienes permiso para leer este archivo. ",list_
 except UnicodeDecodeError: print("El archivo no está en el formato correcto. ",list_catalogo), varios_destinatarios('*El archivo no está en el formato correcto. '+str(list_catalogo))
 except IsADirectoryError: print("Estás intentando leer un directorio en lugar de un archivo. ",list_catalogo), varios_destinatarios('*Estás intentando leer un directorio en lugar de un archivo. '+str(list_catalogo))
 except IOError: print("No se pudo leer el archivo debido a un problema de E/S. ",list_catalogo), varios_destinatarios('*No se pudo leer el archivo debido a un problema de E/S. '+str(list_catalogo))
-print('Ruta CATÁLOGO leído: ',list_catalogo), varios_destinatarios('*Ruta CATÁLOGO leído: *'+str(list_catalogo))
+print('Ruta CATÁLOGO leído: ',list_catalogo), varios_destinatarios('*Ruta CATÁLOGO leído:*\n '+str(list_catalogo))
 del dirnames, dirpath, filename, filenames,list_catalogo
 #%% FILTROS
 CatalogoActualizado = CatalogoActualizado.rename(columns={'Cód. Art.':'CODIGO','Artículo':'DESCRIPCION','Categ.':'CatBC','Stock BC':'STOCK_BC','estadoBC':'Estado_BC'})
